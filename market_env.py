@@ -48,13 +48,13 @@ class MarketEnv(gym.Env):
 
 								lastClose = close
 								lastVolume = volume
-						except Exception, e:
-							print e, line.strip().split(",")
+						except Exception as e:
+							print(e, line.strip().split(","))
 				f.close()
-			except Exception, e:
-				print e
+			except Exception as e:
+				print(e)
 
-			if len(data.keys()) > scope:
+			if len(list(data.keys())) > scope:
 				self.dataMap[code] = data
 				if code in target_codes:
 					self.targetCodes.append(code)
@@ -109,7 +109,7 @@ class MarketEnv(gym.Env):
 		vari = self.target[self.targetDates[self.currentTargetIndex]][2]
 		self.cum = self.cum * (1 + vari)
 
-		for i in xrange(len(self.boughts)):
+		for i in range(len(self.boughts)):
 			self.boughts[i] = self.boughts[i] * MarketEnv.PENALTY * (1 + vari * (-1 if sum(self.boughts) < 0 else 1))
 
 		self.defineState()
@@ -168,12 +168,12 @@ class MarketEnv(gym.Env):
 
 		subject = []
 		subjectVolume = []
-		for i in xrange(self.scope):
+		for i in range(self.scope):
 			try:
 				subject.append([self.target[self.targetDates[self.currentTargetIndex - 1 - i]][2]])
 				subjectVolume.append([self.target[self.targetDates[self.currentTargetIndex - 1 - i]][3]])
-			except Exception, e:
-				print self.targetCode, self.currentTargetIndex, i, len(self.targetDates)
+			except Exception as e:
+				print(self.targetCode, self.currentTargetIndex, i, len(self.targetDates))
 				self.done = True
 		tmpState.append([[subject, subjectVolume]])
 
