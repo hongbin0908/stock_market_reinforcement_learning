@@ -16,7 +16,7 @@ class bcolors:
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
 
-class PolicyGradient:
+class PolicyGradientTest:
 
     def __init__(self, env, discount = 0.99, model_filename = None, history_filename = None):
         self.env = env
@@ -43,7 +43,7 @@ class PolicyGradient:
 
         return discounted_r
 
-    def train(self, max_episode = 1000000, max_path_length = 200, verbose = 0):
+    def test(self, max_episode = 1000000, max_path_length = 200, verbose = 0):
         env = self.env
         model = self.model
         avg_reward_sum = 0.
@@ -90,44 +90,6 @@ class PolicyGradient:
             avg_reward_sum = avg_reward_sum * 0.99 + reward_sum * 0.01
             toPrint = "%d\t%s\t%s\t%.2f\t%.2f" % (e, info["code"], (bcolors.FAIL if reward_sum >= 0 else bcolors.OKBLUE) + ("%.2f" % reward_sum) + bcolors.ENDC, info["cum"], avg_reward_sum)
             print(toPrint)
-            if self.history_filename != None:
-                os.system("echo %s >> %s" % (toPrint, self.history_filename))
-
-
-            dim = len(inputs[0])
-            inputs_ = [[] for i in range(dim)]
-            for obs in inputs:
-                for i, block in enumerate(obs):
-                    inputs_[i].append(block[0])
-            inputs_ = [np.array(inputs_[i]) for i in range(dim)]
-
-            outputs_ = np.vstack(outputs)
-            predicteds_ = np.vstack(predicteds)
-            rewards_ = np.vstack(rewards)
-
-            discounted_rewards_ = self.discount_rewards(rewards_)
-            #discounted_rewards_ -= np.mean(discounted_rewards_)
-            discounted_rewards_ /= np.std(discounted_rewards_)
-
-            #outputs_ *= discounted_rewards_
-            for i, r in enumerate(zip(rewards, discounted_rewards_)):
-                reward, discounted_reward = r
-
-                if verbose > 1:
-                    print(outputs_[i], end=' ')
-                
-                #outputs_[i] = 0.5 + (2 * outputs_[i] - 1) * discounted_reward
-                if discounted_reward < 0:
-                    outputs_[i] = 1 - outputs_[i]
-                    outputs_[i] = outputs_[i] / sum(outputs_[i])
-                outputs_[i] = np.minimum(1, np.maximum(0, predicteds_[i] + (outputs_[i] - predicteds_[i]) * abs(discounted_reward)))
-
-                if verbose > 1:
-                    print(predicteds_[i], outputs_[i], reward, discounted_reward)
-
-            model.fit(inputs_, outputs_, nb_epoch = 1, verbose = 0, shuffle = True)
-            model.save_weights(self.model_filename)
-    def test(self):
 
 if __name__ == "__main__":
     import sys
@@ -147,7 +109,7 @@ if __name__ == "__main__":
 
     f.close()
 
-    env = MarketEnv(dir_path = "./data/", target_codes = list(codeMap.keys()), input_codes = [], start_date = "2010-08-25", end_date = "2015-08-25", sudden_death = -1.0)
+    env = MarketEnv(dir_path = "./data/", target_codes = list(codeMap.keys()), input_codes = [], start_date = "2015-08-26", end_date = "2016-08-25", sudden_death = -1.0)
 
-    pg = PolicyGradient(env, discount = 0.9, model_filename = modelFilename, history_filename = historyFilename)
-    pg.train(verbose = 0)
+    pg = PolicyGradientTest(env, discount = 0.9, model_filename = modelFilename, history_filename = historyFilename)
+    pg.test(verbose = 0)

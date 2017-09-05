@@ -2,11 +2,11 @@
 
 ## Overview
 
-This project provides a general environment for stock market trading simulation using [OpenAI Gym](https://gym.openai.com/). 
+This project provides a general environment for stock market trading simulation using [OpenAI Gym](https://gym.openai.com/).
 Training data is a close price of each day, which is downloaded from Google Finance, but you can apply any data if you want.
 Also, it contains simple Deep Q-learning and Policy Gradient from [Karpathy's post](http://karpathy.github.io/2016/05/31/rl/).
 
-In fact, the purpose of this project is not only providing a best RL solution for stock trading, but also building a general open environment for further research.  
+In fact, the purpose of this project is not only providing a best RL solution for stock trading, but also building a general open environment for further research.
 **So, please, manipulate the model architecture and features to get your own better solution.**
 
 ## Requirements
@@ -19,7 +19,7 @@ In fact, the purpose of this project is not only providing a best RL solution fo
 
 ## Usage
 
-Note that the most sample training data in this repo is Korean stock. 
+Note that the most sample training data in this repo is Korean stock.
 You may need to re-download your own training data to fit your purpose.
 
 After meet those requirements in above, you can begin the training both algorithms, Deep Q-learning and Policy Gradient.
@@ -38,12 +38,27 @@ For example, you can do like this:
 
 Aware that the provided neural network architecture in this repo is too small to learn.
 So, it may under-fitting if you try to learn every stock data.
-It just fitted for 10 to 100 stock data for a few years. (I checked!!)  
-Thus you need to re-design your own architecture and   
+It just fitted for 10 to 100 stock data for a few years. (I checked!!)
+Thus you need to re-design your own architecture and
 **let me know if you have better one!**
 
-Below is training curve for Top-10 KOSPI stock datas for 4 years using Policy Gradient.  
+Below is training curve for Top-10 KOSPI stock datas for 4 years using Policy Gradient.
 ![Training Curve](./pg_over_top_10.png)
+## detail
+**MarketEnv**
+1. 什么时候game over?
+```
+if self.sudden_death * len(self.boughts) > self.reward:
+  self.done = True
+```
+当本钱全部输光的时候game over, 本次模拟结束.
+2. 状态是什么?
+3. reward怎么计算?
+  计算逻辑非常诡异, 不清楚作者的逻辑是什么?
+4.
+
+
+
 
 ## To do
 - Test environment to check overfitting.
@@ -51,7 +66,7 @@ Below is training curve for Top-10 KOSPI stock datas for 4 years using Policy Gr
 
 ## Reference
 
-[1] [Playing Atari with Deep Reinforcement Learning](http://arxiv.org/abs/1312.5602)  
-[2] [Deep Reinforcement Learning: Pong from Pixels](http://karpathy.github.io/2016/05/31/rl/)  
-[3] [KEras Reinforcement Learning gYM agents, KeRLym](https://github.com/osh/kerlym)  
+[1] [Playing Atari with Deep Reinforcement Learning](http://arxiv.org/abs/1312.5602)
+[2] [Deep Reinforcement Learning: Pong from Pixels](http://karpathy.github.io/2016/05/31/rl/)
+[3] [Keras Reinforcement Learning GYM agents, KeRLym](https://github.com/osh/kerlym)
 [4] [Keras plays catch, a single file Reinforcement Learning example](http://edersantana.github.io/articles/keras_rl/)
