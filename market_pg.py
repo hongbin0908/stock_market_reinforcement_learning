@@ -30,6 +30,9 @@ class PolicyGradient:
         sgd = SGD(lr = 0.1, decay = 1e-6, momentum = 0.9, nesterov = True)
         self.model.compile(loss='mse', optimizer='rmsprop')
 
+        self.test_avg_reward_sum = 0
+        self.avg_reward_sum = 0
+
     def discount_rewards(self, r):
         discounted_r = np.zeros_like(r)
         running_add = 0
@@ -43,6 +46,7 @@ class PolicyGradient:
             discounted_r[t] = running_add
 
         return discounted_r
+
 
     def test(self, e, code, verbose=False):
         env_test = self.env_test
@@ -58,7 +62,6 @@ class PolicyGradient:
         predicteds = []
         rewards = []
 
-        avg_reward_sum = 0.
         while not game_over:
             aprob = model.predict(observation)[0]
             inputs.append(observation)
@@ -87,14 +90,13 @@ class PolicyGradient:
                     color = bcolors.FAIL if env_test.actions[action] == "LONG" else bcolors.OKBLUE
                     print("%s:\t%s\t%.2f\t%.2f\t" % (info["dt"], color + env_test.actions[action] + bcolors.ENDC, reward_sum, info["cum"]) + ("\t".join(["%s:%.2f" % (l, i) for l, i in zip(env_test.actions, aprob.tolist())])))
 
-        avg_reward_sum = avg_reward_sum * 0.99 + reward_sum * 0.01
-        toPrint = "%d\t%s\t%s\t%.2f\t%.2f" % (e, info["code"], (bcolors.FAIL if reward_sum >= 0 else bcolors.OKBLUE) + ("%.2f" % reward_sum) + bcolors.ENDC, info["cum"], avg_reward_sum)
+        self.test_avg_reward_sum = self.test_avg_reward_sum * 0.99 + reward_sum * 0.01
+        toPrint = "%d\t%s\t%s\t%.2f\t%.2f" % (e, info["code"], (bcolors.FAIL if reward_sum >= 0 else bcolors.OKBLUE) + ("%.2f" % reward_sum) + bcolors.ENDC, info["cum"], self.test_avg_reward_sum)
         return toPrint
 
     def train(self, max_episode = 1000000, max_path_length = 200, verbose = 0):
         env = self.env
         model = self.model
-        avg_reward_sum = 0.
 
         for e in range(max_episode):
             from random import random
@@ -137,8 +139,8 @@ class PolicyGradient:
                         color = bcolors.FAIL if env.actions[action] == "LONG" else bcolors.OKBLUE
                         print("%s:\t%s\t%.2f\t%.2f\t" % (info["dt"], color + env.actions[action] + bcolors.ENDC, reward_sum, info["cum"]) + ("\t".join(["%s:%.2f" % (l, i) for l, i in zip(env.actions, aprob.tolist())])))
 
-            avg_reward_sum = avg_reward_sum * 0.99 + reward_sum * 0.01
-            toPrint = "%d\t%s\t%s\t%.2f\t%.2f" % (e, info["code"], (bcolors.FAIL if reward_sum >= 0 else bcolors.OKBLUE) + ("%.2f" % reward_sum) + bcolors.ENDC, info["cum"], avg_reward_sum)
+            self.avg_reward_sum = self.avg_reward_sum * 0.99 + reward_sum * 0.01
+            toPrint = "%d\t%s\t%s\t%.2f\t%.2f" % (e, info["code"], (bcolors.FAIL if reward_sum >= 0 else bcolors.OKBLUE) + ("%.2f" % reward_sum) + bcolors.ENDC, info["cum"], self.avg_reward_sum)
             print(toPrint,'\t', self.test(e, code))
             if self.history_filename != None:
                 os.system("echo %s >> %s" % (toPrint, self.history_filename))
