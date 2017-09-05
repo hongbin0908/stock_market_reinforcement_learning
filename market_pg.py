@@ -47,8 +47,7 @@ class PolicyGradient:
     def test(self, code):
         env_test = self.env_test
         model = self.model
-        env_test.reset(code)
-
+        env_test._reset(code)
 
         observation = env.reset()
         game_over = False
