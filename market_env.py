@@ -49,6 +49,8 @@ class MarketEnv(gym.Env):
 
                                 lastClose = close
                                 lastVolume = volume
+                            else:
+                                print(dt)
                         except Exception as e:
                             print(e, line.strip().split(","))
                 f.close()
