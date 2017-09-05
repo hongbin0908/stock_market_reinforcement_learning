@@ -137,7 +137,6 @@ class MarketEnv(gym.Env):
             assert(False)
             self.targetCode =  None #self.targetCodes[int(random() * len(self.targetCodes))]
         self.target = self.dataMap[self.targetCode] # 随意选择一个股票
-        print(len(self.target))
         self.targetDates = sorted(self.target.keys())
         self.currentTargetIndex = self.scope
         self.boughts = []

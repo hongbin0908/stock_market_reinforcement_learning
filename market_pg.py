@@ -49,7 +49,7 @@ class PolicyGradient:
         model = self.model
         env_test._reset(code)
 
-        observation = env._reset(code)
+        observation = env_test._reset(code)
         game_over = False
         reward_sum = 0
 
@@ -65,9 +65,9 @@ class PolicyGradient:
             predicteds.append(aprob)
 
             if aprob.shape[0] > 1:
-                action = np.random.choice(self.env.action_space.n, 1, p = aprob / np.sum(aprob))[0]
+                action = np.random.choice(env_test.action_space.n, 1, p = aprob / np.sum(aprob))[0]
 
-                y = np.zeros([self.env.action_space.n])
+                y = np.zeros([env_test.action_space.n])
                 y[action] = 1.
 
                 outputs.append(y)
@@ -77,15 +77,15 @@ class PolicyGradient:
                 y = [float(action)]
                 outputs.append(y)
 
-            observation, reward, game_over, info = self.env.step(action)
+            observation, reward, game_over, info = env_test.step(action)
             reward_sum += float(reward)
 
             rewards.append(float(reward))
 
             if verbose > 0:
-                if env.actions[action] == "LONG" or env.actions[action] == "SHORT":
-                    color = bcolors.FAIL if env.actions[action] == "LONG" else bcolors.OKBLUE
-                    print("%s:\t%s\t%.2f\t%.2f\t" % (info["dt"], color + env.actions[action] + bcolors.ENDC, reward_sum, info["cum"]) + ("\t".join(["%s:%.2f" % (l, i) for l, i in zip(env.actions, aprob.tolist())])))
+                if env_test.actions[action] == "LONG" or env_test.actions[action] == "SHORT":
+                    color = bcolors.FAIL if env_test.actions[action] == "LONG" else bcolors.OKBLUE
+                    print("%s:\t%s\t%.2f\t%.2f\t" % (info["dt"], color + env_test.actions[action] + bcolors.ENDC, reward_sum, info["cum"]) + ("\t".join(["%s:%.2f" % (l, i) for l, i in zip(env_test.actions, aprob.tolist())])))
 
         avg_reward_sum = avg_reward_sum * 0.99 + reward_sum * 0.01
         toPrint = "%d\t%s\t%s\t%.2f\t%.2f" % (e, info["code"], (bcolors.FAIL if reward_sum >= 0 else bcolors.OKBLUE) + ("%.2f" % reward_sum) + bcolors.ENDC, info["cum"], avg_reward_sum)
