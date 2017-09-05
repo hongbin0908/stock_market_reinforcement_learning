@@ -70,7 +70,7 @@ class MarketEnv(gym.Env):
         self.action_space = spaces.Discrete(len(self.actions))
         self.observation_space = spaces.Box(np.ones(scope * (len(input_codes) + 1)) * -1, np.ones(scope * (len(input_codes) + 1)))
 
-        self.reset()
+        self._reset()
         self._seed()
 
     def _step(self, action):

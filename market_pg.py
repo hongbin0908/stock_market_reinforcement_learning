@@ -49,7 +49,7 @@ class PolicyGradient:
         model = self.model
         env_test._reset(code)
 
-        observation = env.reset()
+        observation = env._reset()
         game_over = False
         reward_sum = 0
 
@@ -100,7 +100,7 @@ class PolicyGradient:
             from random import random
             code = self.env.targetCodes[int(random() * len(self.env.targetCodes))]
             env._reset(code)
-            observation = env.reset()
+            observation = env._reset()
             game_over = False
             reward_sum = 0
 
