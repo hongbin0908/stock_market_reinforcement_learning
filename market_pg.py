@@ -44,7 +44,7 @@ class PolicyGradient:
 
         return discounted_r
 
-    def test(self, code, verobse=False):
+    def test(self, e, code, verbose=False):
         env_test = self.env_test
         model = self.model
         env_test._reset(code)
@@ -139,7 +139,7 @@ class PolicyGradient:
 
             avg_reward_sum = avg_reward_sum * 0.99 + reward_sum * 0.01
             toPrint = "%d\t%s\t%s\t%.2f\t%.2f" % (e, info["code"], (bcolors.FAIL if reward_sum >= 0 else bcolors.OKBLUE) + ("%.2f" % reward_sum) + bcolors.ENDC, info["cum"], avg_reward_sum)
-            print(toPrint,'\t', self.test(code))
+            print(toPrint,'\t', self.test(e, code))
             if self.history_filename != None:
                 os.system("echo %s >> %s" % (toPrint, self.history_filename))
 
