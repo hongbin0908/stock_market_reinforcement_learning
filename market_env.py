@@ -128,8 +128,11 @@ class MarketEnv(gym.Env):
 
         return self.state, self.reward, self.done, {"dt": self.targetDates[self.currentTargetIndex], "cum": self.cum, "code": self.targetCode}
 
-    def _reset(self):
-        self.targetCode = self.targetCodes[int(random() * len(self.targetCodes))]
+    def _reset(self, code=None):
+        if not code is None:
+            self.targetCode = code
+        else:
+            self.targetCode = self.targetCodes[int(random() * len(self.targetCodes))]
         self.target = self.dataMap[self.targetCode] # 随意选择一个股票
         self.targetDates = sorted(self.target.keys())
         self.currentTargetIndex = self.scope

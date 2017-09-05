@@ -18,8 +18,9 @@ class bcolors:
 
 class PolicyGradient:
 
-    def __init__(self, env, discount = 0.99, model_filename = None, history_filename = None):
+    def __init__(self, env, env_test, discount = 0.99, model_filename = None, history_filename = None):
         self.env = env
+        self.env_test = env_test
         self.discount = discount
         self.model_filename = model_filename
         self.history_filename = history_filename
@@ -43,13 +44,63 @@ class PolicyGradient:
 
         return discounted_r
 
+    def test(self, code):
+        env_test = self.env_test
+        model = self.model
+        env_test.reset(code)
+
+
+        observation = env.reset()
+        game_over = False
+        reward_sum = 0
+
+        inputs = []
+        outputs = []
+        predicteds = []
+        rewards = []
+
+        avg_reward_sum = 0.
+        while not game_over:
+            aprob = model.predict(observation)[0]
+            inputs.append(observation)
+            predicteds.append(aprob)
+
+            if aprob.shape[0] > 1:
+                action = np.random.choice(self.env.action_space.n, 1, p = aprob / np.sum(aprob))[0]
+
+                y = np.zeros([self.env.action_space.n])
+                y[action] = 1.
+
+                outputs.append(y)
+            else:
+                action = 0 if np.random.uniform() < aprob else 1
+
+                y = [float(action)]
+                outputs.append(y)
+
+            observation, reward, game_over, info = self.env.step(action)
+            reward_sum += float(reward)
+
+            rewards.append(float(reward))
+
+            if verbose > 0:
+                if env.actions[action] == "LONG" or env.actions[action] == "SHORT":
+                    color = bcolors.FAIL if env.actions[action] == "LONG" else bcolors.OKBLUE
+                    print("%s:\t%s\t%.2f\t%.2f\t" % (info["dt"], color + env.actions[action] + bcolors.ENDC, reward_sum, info["cum"]) + ("\t".join(["%s:%.2f" % (l, i) for l, i in zip(env.actions, aprob.tolist())])))
+
+        avg_reward_sum = avg_reward_sum * 0.99 + reward_sum * 0.01
+        toPrint = "%d\t%s\t%s\t%.2f\t%.2f" % (e, info["code"], (bcolors.FAIL if reward_sum >= 0 else bcolors.OKBLUE) + ("%.2f" % reward_sum) + bcolors.ENDC, info["cum"], avg_reward_sum)
+        return toPrint
+
     def train(self, max_episode = 1000000, max_path_length = 200, verbose = 0):
         env = self.env
         model = self.model
         avg_reward_sum = 0.
 
         for e in range(max_episode):
-            env.reset()
+            from random import random
+            code = self.env.targetCodes[int(random() * len(self.env.targetCodes))]
+            env.reset(code)
             observation = env.reset()
             game_over = False
             reward_sum = 0
@@ -89,7 +140,7 @@ class PolicyGradient:
 
             avg_reward_sum = avg_reward_sum * 0.99 + reward_sum * 0.01
             toPrint = "%d\t%s\t%s\t%.2f\t%.2f" % (e, info["code"], (bcolors.FAIL if reward_sum >= 0 else bcolors.OKBLUE) + ("%.2f" % reward_sum) + bcolors.ENDC, info["cum"], avg_reward_sum)
-            print(toPrint)
+            print(toPrint,'\t', self.test(code))
             if self.history_filename != None:
                 os.system("echo %s >> %s" % (toPrint, self.history_filename))
 
@@ -127,7 +178,6 @@ class PolicyGradient:
 
             model.fit(inputs_, outputs_, nb_epoch = 1, verbose = 0, shuffle = True)
             model.save_weights(self.model_filename)
-    def test(self):
 
 if __name__ == "__main__":
     import sys
@@ -148,6 +198,6 @@ if __name__ == "__main__":
     f.close()
 
     env = MarketEnv(dir_path = "./data/", target_codes = list(codeMap.keys()), input_codes = [], start_date = "2010-08-25", end_date = "2015-08-25", sudden_death = -1.0)
-
-    pg = PolicyGradient(env, discount = 0.9, model_filename = modelFilename, history_filename = historyFilename)
+    env_test = MarketEnv(dir_path = "./data/", target_codes = list(codeMap.keys()), input_codes = [], start_date = "2015-08-26", end_date = "2016-08-25", sudden_death = -1.0)
+    pg = PolicyGradient(env, env_test, discount = 0.9, model_filename = modelFilename, history_filename = historyFilename)
     pg.train(verbose = 0)
