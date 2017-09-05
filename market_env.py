@@ -134,8 +134,7 @@ class MarketEnv(gym.Env):
         if not code is None:
             self.targetCode = code
         else:
-            assert(False)
-            self.targetCode =  None #self.targetCodes[int(random() * len(self.targetCodes))]
+            self.targetCode = self.targetCodes[int(random() * len(self.targetCodes))]
         self.target = self.dataMap[self.targetCode] # 随意选择一个股票
         self.targetDates = sorted(self.target.keys())
         self.currentTargetIndex = self.scope
