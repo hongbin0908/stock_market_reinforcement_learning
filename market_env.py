@@ -32,7 +32,7 @@ class MarketEnv(gym.Env):
                     if line.strip() != "":
                         dt, openPrice, high, low, close, volume = line.strip().split(",")
                         try:
-                            if dt >= start_date:
+                            if dt >= start_date and dt <= end_date:
                                 high = float(high) if high != "" else float(close)
                                 low = float(low) if low != "" else float(close)
                                 close = float(close)
@@ -132,8 +132,8 @@ class MarketEnv(gym.Env):
         if not code is None:
             self.targetCode = code
         else:
-            assert False
-            self.targetCode = self.targetCodes[int(random() * len(self.targetCodes))]
+            assert(False)
+            self.targetCode =  None #self.targetCodes[int(random() * len(self.targetCodes))]
         self.target = self.dataMap[self.targetCode] # 随意选择一个股票
         self.targetDates = sorted(self.target.keys())
         self.currentTargetIndex = self.scope
