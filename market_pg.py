@@ -44,7 +44,7 @@ class PolicyGradient:
 
         return discounted_r
 
-    def test(self, code):
+    def test(self, code, verobse=False):
         env_test = self.env_test
         model = self.model
         env_test._reset(code)
@@ -99,7 +99,7 @@ class PolicyGradient:
         for e in range(max_episode):
             from random import random
             code = self.env.targetCodes[int(random() * len(self.env.targetCodes))]
-            env.reset(code)
+            env._reset(code)
             observation = env.reset()
             game_over = False
             reward_sum = 0
