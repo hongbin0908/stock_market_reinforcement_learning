@@ -2,6 +2,8 @@ import numpy as np
 
 from market_env import MarketEnv
 from market_model_builder import MarketModelBuilder
+from keras import backend as K
+K.set_image_dim_ordering('th')
 
 class bcolors:
     HEADER = '\033[95m'

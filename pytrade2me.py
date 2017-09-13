@@ -10,9 +10,9 @@ local_path = os.path.dirname(__file__)
 root = os.path.join(local_path, '..')
 sys.path.append(root)
 
-for line in open(os.path.join(local_path, 'indexes.csv')):
+for line in open(os.path.join(local_path, 'dow30_20170901.csv')):
     sym = line.split()[0]
-    df = pd.read_csv(os.path.join(local_path, 'index_data', sym + ".csv"))
+    df = pd.read_csv(os.path.join(local_path, 'dow30_data', sym + ".csv"))
     print(df.head())
     df.set_index(['date'], drop=True, inplace=True)
     df[['open', 'high', 'low', 'close', 'volume']].to_csv(os.path.join(local_path, 'data', sym + ".csv"))

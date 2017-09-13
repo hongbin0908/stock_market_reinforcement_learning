@@ -36,7 +36,7 @@ class MarketEnv(gym.Env):
                                 high = float(high) if high != "" else float(close)
                                 low = float(low) if low != "" else float(close)
                                 close = float(close)
-                                volume = int(volume)
+                                volume = int(float(volume))
 
                                 # 正则化 这个正则化的过程不是很懂? 能保证 high > close > low??
                                 if lastClose > 0 and close > 0 and lastVolume > 0:
