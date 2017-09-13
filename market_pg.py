@@ -94,7 +94,7 @@ class PolicyGradient:
         toPrint = "%d\t%s\t%s\t%.2f\t%.2f" % (e, info["code"], (bcolors.FAIL if reward_sum >= 0 else bcolors.OKBLUE) + ("%.2f" % reward_sum) + bcolors.ENDC, info["cum"], self.test_avg_reward_sum)
         return toPrint
 
-    def train(self, max_episode = 1000000, max_path_length = 200, verbose = 0):
+    def train(self, max_episode = 1000000, max_path_length = 200, verbose = True):
         env = self.env
         model = self.model
 
@@ -201,4 +201,4 @@ if __name__ == "__main__":
     env = MarketEnv(dir_path = "./data/", target_codes = list(codeMap.keys()), input_codes = [], start_date = "2010-08-25", end_date = "2015-08-25", sudden_death = -1.0)
     env_test = MarketEnv(dir_path = "./data/", target_codes = list(codeMap.keys()), input_codes = [], start_date = "2015-08-26", end_date = "2016-08-25", sudden_death = -1.0)
     pg = PolicyGradient(env, env_test, discount = 0.9, model_filename = modelFilename, history_filename = historyFilename)
-    pg.train(verbose = 0)
+    pg.train(verbose = True)

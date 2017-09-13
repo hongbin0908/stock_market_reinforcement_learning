@@ -12,7 +12,7 @@ class MarketEnv(gym.Env):
     def __init__(self, dir_path, target_codes, input_codes, start_date, end_date, scope = 60, sudden_death = -1., cumulative_reward = False):
         self.startDate = start_date
         self.endDate = end_date
-        self.scope = scope
+        self.scope = scope # 考虑历史数据的长度 60天
         self.sudden_death = sudden_death # 控制game over的变量, -1表示不会结束.
         self.cumulative_reward = cumulative_reward
 
@@ -169,7 +169,7 @@ class MarketEnv(gym.Env):
 
         budget = (sum(self.boughts) / len(self.boughts)) if len(self.boughts) > 0 else 1.
         size = math.log(max(1., len(self.boughts)), 100)
-        position = 1. if sum(self.boughts) > 0 else 0.
+        position = 1. if sum(self.boughts) > 0 else 0. # postion =1 做多, =0 做空
         tmpState.append([[budget, size, position]])
 
         subject = []
