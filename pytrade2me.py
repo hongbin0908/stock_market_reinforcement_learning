@@ -15,7 +15,7 @@ for line in open(os.path.join(local_path, 'indexes.csv')):
     df = pd.read_csv(os.path.join(local_path, 'index_data', sym + ".csv"))
     print(df.head())
     df.set_index(['date'], drop=True, inplace=True)
-    df[['open', 'high', 'low', 'close', 'volume']].to_csv(os.path.join(local_path, 'data', sym + "csv"))
+    df[['open', 'high', 'low', 'close', 'volume']].to_csv(os.path.join(local_path, 'data', sym + ".csv"))
 
 
 
