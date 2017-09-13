@@ -117,7 +117,7 @@ class MarketEnv(gym.Env):
 
         self.defineState()
         self.currentTargetIndex += 1
-        if self.currentTargetIndex >= len(self.targetDates) or self.endDate <= self.targetDates[self.currentTargetIndex]:
+        if self.currentTargetIndex >= len(self.targetDates)-1 or self.endDate <= self.targetDates[self.currentTargetIndex]:
             self.done = True
 
         if self.done:
