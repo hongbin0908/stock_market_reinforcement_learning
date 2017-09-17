@@ -131,34 +131,14 @@ class PolicyGradient:
         game_over = False
         reward_sum = 0
 
-        inputs = []
-        outputs = []
-        predicteds = []
-        rewards = []
-
         while not game_over:
             aprob = model.predict(observation)[0]
-            inputs.append(observation)
-            predicteds.append(aprob)
-
             if aprob.shape[0] > 1:
                 action = np.random.choice(env_test.action_space.n, 1, p = aprob / np.sum(aprob))[0]
-
-                y = np.zeros([env_test.action_space.n])
-                y[action] = 1.
-
-                outputs.append(y)
             else:
                 action = 0 if np.random.uniform() < aprob else 1
-
-                y = [float(action)]
-                outputs.append(y)
-
             observation, reward, game_over, info = env_test.step(action)
             reward_sum += float(reward)
-
-            rewards.append(float(reward))
-
             if verbose > 0:
                 if env_test.actions[action] == "LONG" or env_test.actions[action] == "SHORT":
                     color = bcolors.FAIL if env_test.actions[action] == "LONG" else bcolors.OKBLUE
