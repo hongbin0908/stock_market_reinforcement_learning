@@ -1,5 +1,11 @@
 import os
+import sys
 import numpy as np
+import pandas as pd
+
+local_path = os.path.dirname(__file__)
+root = os.path.join(local_path, '..')
+sys.path.append(root)
 
 from market_env import MarketEnv
 from market_model_builder import MarketPolicyGradientModelBuilder
@@ -47,6 +53,74 @@ class PolicyGradient:
 
         return discounted_r
 
+    def paper(self, code):
+        def take_position():
+            date2position = {}
+            game_over = False
+            observation = self.env_test._reset(code)
+            while not game_over:
+                aprob = self.model.predict(observation)[0]
+                if aprob.shape[0] > 1:
+                    action = np.random.choice(env_test.action_space.n, 1, p=aprob / np.sum(aprob))[0]
+                else:
+                    action = 0 if np.random.uniform() < aprob else 1
+                observation, reward, game_over, info = env_test.step(action)
+                date2position[info['dt']] = action
+            return date2position
+        def cum_return(sym, row):
+            date = row['date']
+            close_rel = row['close_rel']
+            if date in date2position:
+                position = date2position[date]
+                if 1 == position:
+                    result['cum'] *= close_rel
+                    return result['cum']
+                elif 0 == position:
+                    result['cum'] *= 2 - close_rel
+                    return result['cum']
+            else:
+                print(date , 'not in date2postion')
+                return result['cum']
+        def cum_return_bh(sym, row): ## buy and hold
+            def bought_every_day(sym, current_day):
+                return 1
+            position = bought_every_day(sym ,row['date'])
+            if 1 == position:
+                result['cum'] *= row['close_rel']
+            elif 0 == position:
+                pass
+            elif -1 == position:
+                pass # no short
+            return result['cum']
+        def cum_return_sh(sym, row): # short and hold
+            def bought_every_day(sym, current_day):
+                return -1
+            position = bought_every_day(sym ,row['date'])
+            if 1 == position:
+                result['cum'] *= row['close_rel']
+            elif 0 == position:
+                pass
+            elif -1 == position:
+                result['cum'] *= 2 - row['close_rel']
+            return result['cum']
+
+        df = pd.read_csv(os.path.join(local_path, 'data', '%s.csv' % code))
+        start = self.env_test.startDate
+        end = self.env_test.endDate
+        df = df[(df.date >= start) & (df.date < end)]
+        dates = pd.to_datetime(df.date, format='%Y-%m-%d')
+        df['close_rel']  = (df.close / df.close.shift(1)).fillna(1.0)
+
+        date2position = take_position()
+        result = {'cum':1}
+        df_cum = df.apply(lambda x: cum_return('^DJI', x), axis = 1)
+        import matplotlib.pyplot as plt
+        plt.plot(dates, df_cum)
+        df_cum = df.apply(lambda x: cum_return_bh('^DJI', x), axis = 1)
+        plt.plot(dates, df_cum)
+        df_cum = df.apply(lambda x: cum_return_sh('^DJI', x), axis = 1)
+        plt.plot(dates, df_cum)
+        plt.show()
 
     def test(self, e, code, verbose=False):
         env_test = self.env_test
@@ -184,9 +258,11 @@ if __name__ == "__main__":
     import sys
     import codecs
 
-    codeListFilename = sys.argv[1]
-    modelFilename = sys.argv[2] if len(sys.argv) > 2 else None
-    historyFilename = sys.argv[3] if len(sys.argv) > 3 else None
+    argi = 1
+    mode = sys.argv[argi]; argi += 1
+    codeListFilename = sys.argv[argi]; argi +=1
+    modelFilename = sys.argv[argi]; argi +=1
+    historyFilename = sys.argv[argi]; argi +=1
 
     codeMap = {}
     f = codecs.open(codeListFilename, "r", "utf-8")
@@ -198,7 +274,14 @@ if __name__ == "__main__":
 
     f.close()
 
-    env = MarketEnv(dir_path = "./data/", target_codes = list(codeMap.keys()), input_codes = [], start_date = "2010-08-25", end_date = "2015-08-25", sudden_death = -1.0)
-    env_test = MarketEnv(dir_path = "./data/", target_codes = list(codeMap.keys()), input_codes = [], start_date = "2015-08-26", end_date = "2016-08-25", sudden_death = -1.0)
+    #env = MarketEnv(dir_path = "./data/", target_codes = list(codeMap.keys()), input_codes = [], start_date = "2010-08-25", end_date = "2015-08-25", sudden_death = -1.0)
+    #env_test = MarketEnv(dir_path = "./data/", target_codes = list(codeMap.keys()), input_codes = [], start_date = "2015-08-26", end_date = "2016-08-25", sudden_death = -1.0)
+    env = MarketEnv(dir_path = "./data/", target_codes = list(codeMap.keys()), input_codes = [], start_date = "2002-08-25", end_date = "2007-08-25", sudden_death = -1.0)
+    env_test = MarketEnv(dir_path = "./data/", target_codes = list(codeMap.keys()), input_codes = [], start_date = "2008-08-26", end_date = "2009-08-25", sudden_death = -1.0)
     pg = PolicyGradient(env, env_test, discount = 0.9, model_filename = modelFilename, history_filename = historyFilename)
-    pg.train(verbose = 0)
+    if mode == 'train':
+        pg.train(verbose = 0)
+    elif mode == 'paper':
+        pg.paper('^DJI')
+    else:
+        assert False
