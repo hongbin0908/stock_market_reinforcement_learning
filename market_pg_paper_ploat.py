@@ -47,7 +47,7 @@ if __name__ == "__main__":
     plt.subplot(121)
     plt.plot(pd.to_datetime(df.date,format='%Y-%m-%d'), df.bh_cum)
     plt.plot(pd.to_datetime(df.date,format='%Y-%m-%d'), df.sh_cum)
-    plt.plot(pd.to_datetime(df.date,format='%Y-%m-%d'), df.model_cum)
+    #plt.plot(pd.to_datetime(df.date,format='%Y-%m-%d'), df.model_cum)
     plt.subplot(122)
     plt.plot(pd.to_datetime(df.date,format='%Y-%m-%d'), df.close)
     plt.savefig("paper-%s-%s-%s" % (code, start ,end))
