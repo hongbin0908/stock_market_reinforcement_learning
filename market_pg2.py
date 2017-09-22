@@ -186,7 +186,7 @@ if __name__ == "__main__":
 
     f.close()
 
-    env = MarketEnv(dir_path = "./data/", target_codes = list(codeMap.keys()), input_codes = [], start_date = "2002-08-25", end_date = "2007-08-25", sudden_death = -1.0)
-    env_test = MarketEnv(dir_path = "./data/", target_codes = list(codeMap.keys()), input_codes = [], start_date = "2008-08-26", end_date = "2009-08-25", sudden_death = -1.0)
+    env = MarketEnv(dir_path = "./data/", target_codes = list(codeMap.keys()), input_codes = [], start_date = "2002-12-25", end_date = "2007-12-25", sudden_death = -1.0)
+    env_test = MarketEnv(dir_path = "./data/", target_codes = list(codeMap.keys()), input_codes = [], start_date = "2007-12-26", end_date = "2008-12-25", sudden_death = -1.0)
     pg = PolicyGradient(env, env_test, discount = 0.9, model_filename = modelFilename, history_filename = historyFilename)
     pg.train(verbose = 0)
