@@ -29,3 +29,4 @@ if __name__ == "__main__":
 
     plt.plot(pd.to_datetime(df.date,format='%Y-%m-%d'), df.close)
     plt.savefig("paper-%s-%s-%s" % (code, start ,end))
+    plt.show()
