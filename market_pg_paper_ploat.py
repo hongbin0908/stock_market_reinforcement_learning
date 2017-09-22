@@ -24,4 +24,6 @@ if __name__ == "__main__":
                 df = pd.read_csv(os.path.join(root, f))
                 dfs.append(df)
     df = pd.concat(dfs, axis=0)
+    df = df.sort_values('date').set_index('date', drop=True)
     print(df.head())
+    print(df.tail())
