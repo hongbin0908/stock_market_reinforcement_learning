@@ -53,7 +53,7 @@ class PolicyGradient:
 
         return discounted_r
 
-    def paper(self, code):
+    def paper(self, code, filename):
         def take_position():
             date2position = {}
             game_over = False
@@ -67,41 +67,39 @@ class PolicyGradient:
                 observation, reward, game_over, info = self.env_test.step(action)
                 date2position[info['dt']] = action
             return date2position
-        def cum_return(sym, row):
+        def position_return(position, close_rel):
+            if 1 == position:
+                return  close_rel
+            elif 0 == position:
+                return 1
+            elif -1 == position:
+                return 2 - close_rel
+
+
+
+        def cum_return(row):
             date = row['date']
             close_rel = row['close_rel']
             if date in date2position:
                 position = date2position[date]
-                if 1 == position:
-                    result['cum'] *= close_rel
-                    return result['cum']
-                elif 0 == position:
-                    result['cum'] *= 2 - close_rel
-                    return result['cum']
+                if position == 0:
+                    position = -1
+                result['cum'] *= position_return(position, close_rel)
+                return result['cum']
             else:
                 print(date , 'not in date2postion')
                 return result['cum']
-        def cum_return_bh(sym, row): ## buy and hold
-            def bought_every_day(sym, current_day):
+        def cum_return_bh(row): ## buy and hold
+            def bought_every_day():
                 return 1
-            position = bought_every_day(sym ,row['date'])
-            if 1 == position:
-                result['cum'] *= row['close_rel']
-            elif 0 == position:
-                pass
-            elif -1 == position:
-                pass # no short
+            position = bought_every_day()
+            result['cum'] *= position_return(position, row['close_rel'])
             return result['cum']
-        def cum_return_sh(sym, row): # short and hold
-            def bought_every_day(sym, current_day):
+        def cum_return_sh(row): # short and hold
+            def bought_every_day():
                 return -1
-            position = bought_every_day(sym ,row['date'])
-            if 1 == position:
-                result['cum'] *= row['close_rel']
-            elif 0 == position:
-                pass
-            elif -1 == position:
-                result['cum'] *= 2 - row['close_rel']
+            position = bought_every_day()
+            result['cum'] *= position_return(position, row['close_rel'])
             return result['cum']
 
         df = pd.read_csv(os.path.join(local_path, 'data', '%s.csv' % code))
@@ -112,15 +110,14 @@ class PolicyGradient:
         df['close_rel']  = (df.close / df.close.shift(1)).fillna(1.0)
 
         date2position = take_position()
-        result = {'cum':1}
-        df_cum = df.apply(lambda x: cum_return('^DJI', x), axis = 1)
-        import matplotlib.pyplot as plt
-        plt.plot(dates, df_cum)
-        df_cum = df.apply(lambda x: cum_return_bh('^DJI', x), axis = 1)
-        plt.plot(dates, df_cum)
-        df_cum = df.apply(lambda x: cum_return_sh('^DJI', x), axis = 1)
-        plt.plot(dates, df_cum)
-        plt.show()
+        result = {'cum':1}; df['cum'] = df.apply(lambda x: cum_return(x), axis = 1)
+        #import matplotlib.pyplot as plt
+        #plt.plot(dates, df_cum)
+        result = {'cum':1}; df['cum_bh'] = df.apply(lambda x: cum_return_bh(x), axis = 1)
+        result = {'cum':1}; df['cum_sh'] = df.apply(lambda x: cum_return_sh(x), axis = 1)
+
+        df.to_csv(filename)
+
 
     def test(self, e, code, verbose=False):
         env_test = self.env_test
