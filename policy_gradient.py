@@ -77,31 +77,21 @@ class PolicyGradient:
 
 
 
-        def cum_return(row):
+        def model_signal(row):
             date = row['date']
             close_rel = row['close_rel']
             if date in date2position:
                 position = date2position[date]
                 if position == 0:
                     position = -1
-                result['cum'] *= position_return(position, close_rel)
-                return result['cum']
+                return position # position_return(position, close_rel)
             else:
                 print(date , 'not in date2postion')
-                return result['cum']
-        def cum_return_bh(row): ## buy and hold
-            def bought_every_day():
-                return 1
-            position = bought_every_day()
-            result['cum'] *= position_return(position, row['close_rel'])
-            return result['cum']
-        def cum_return_sh(row): # short and hold
-            def bought_every_day():
-                return -1
-            position = bought_every_day()
-            result['cum'] *= position_return(position, row['close_rel'])
-            return result['cum']
-
+                return 0
+        def bh_signal(row): ## buy and hold
+            return 1
+        def sh_signal(row): # short and hold
+            return -1
         df = pd.read_csv(os.path.join(local_path, 'data', '%s.csv' % code))
         start = self.env_test.startDate
         end = self.env_test.endDate
@@ -109,11 +99,11 @@ class PolicyGradient:
         df['close_rel']  = (df.close / df.close.shift(1)).fillna(1.0)
 
         date2position = take_position()
-        result = {'cum':1}; df['cum'] = df.apply(lambda x: cum_return(x), axis = 1)
+        df['model_signal'] = df.apply(lambda x: model_signal(x), axis = 1)
         #import matplotlib.pyplot as plt
         #plt.plot(dates, df_cum)
-        result = {'cum':1}; df['cum_bh'] = df.apply(lambda x: cum_return_bh(x), axis = 1)
-        result = {'cum':1}; df['cum_sh'] = df.apply(lambda x: cum_return_sh(x), axis = 1)
+        df['bh_signal'] = df.apply(lambda x: bh_signal(x), axis = 1)
+        df['sh_signal'] = df.apply(lambda x: sh_signal(x), axis = 1)
 
         df.to_csv(filename)
 

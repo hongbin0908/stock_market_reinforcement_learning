@@ -9,6 +9,19 @@ local_path = os.path.realpath(os.path.dirname(__file__))
 root = os.path.join(local_path, '..')
 sys.path.append(root)
 
+def cum_sum(row, signal_name):
+    sig = row[signal_name]
+    close_rel = row['close_rel']
+    if sig == 1:
+        cum['cum'] *= close_rel
+    elif sig == -1:
+        cum['cum'] *= 2-close_rel
+    elif sig == 0:
+        pass
+    else:
+        assert False
+    return cum['cum']
+
 if __name__ == "__main__":
 
     argi = 1
@@ -26,7 +39,9 @@ if __name__ == "__main__":
                 dfs.append(df)
     df = pd.concat(dfs, axis=0)
     df = df.sort_values('date').reset_index(drop = True)
-    df['cum_sum'] = df['close_rel'].cumprod()
+    cum = {'cum':1}; df['model_cum'] = df.apply(lambda x: cum_sum(x, 'model_signal'), axis=1)
+    cum = {'cum':1}; df['bh_cum'] = df.apply(lambda x: cum_sum(x, 'bh_signal'), axis=1)
+    cum = {'cum':1}; df['sh_cum'] = df.apply(lambda x: cum_sum(x, 'sh_signal'), axis=1)
     pd.set_option('display.expand_frame_repr', False)
     pd.options.display.max_rows = 99999
     print(df)
