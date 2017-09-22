@@ -23,5 +23,5 @@ if __name__ == "__main__":
             if m:
                 df = pd.read_csv(os.path.join(root, f))
                 dfs.append(df)
-    df = pd.concat(dfs, axis=1)
+    df = pd.concat(dfs, axis=0)
     print(df.head())
