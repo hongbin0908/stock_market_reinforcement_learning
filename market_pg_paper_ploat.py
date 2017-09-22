@@ -27,7 +27,7 @@ if __name__ == "__main__":
     df = pd.concat(dfs, axis=0)
     df = df.sort_values('date').reset_index(drop = True)
     df['cum_sum'] = df['close_rel'].cumprod()
-    ﻿pd.set_option('display.expand_frame_repr', False)
+    pd.set_option('display.expand_frame_repr', False)
     pd.options.display.max_rows = 99999
     print(df)
 
