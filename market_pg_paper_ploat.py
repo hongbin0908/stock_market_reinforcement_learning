@@ -28,6 +28,7 @@ if __name__ == "__main__":
     df = df.sort_values('date').reset_index(drop = True)
     df['cum_sum'] = df['close_rel'].cumprod()
     print(df.head())
+    print(df.tail())
 
     #plt.figure(0)
     #plt.subplot(121)
