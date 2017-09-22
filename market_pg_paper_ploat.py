@@ -3,6 +3,7 @@ import sys
 import re
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 
 local_path = os.path.realpath(os.path.dirname(__file__))
 root = os.path.join(local_path, '..')
@@ -27,3 +28,6 @@ if __name__ == "__main__":
     df = df.sort_values('date').set_index('date', drop=True)
     print(df.head())
     print(df.tail())
+
+    plt.plot(pd.to_datetime(df.date,format='%Y-%m-%d'), df.close)
+    plt.savefig("paper-%s-%s-%s" % (code, start ,end))
