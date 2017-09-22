@@ -1,5 +1,6 @@
 import os
 import sys
+import re
 import numpy as np
 import pandas as pd
 
@@ -15,7 +16,8 @@ if __name__ == "__main__":
     end = sys.argv[argi]; argi += 1
 
     contents = os.walk(local_path)
-    print(contents)
     for root, dirs, files in contents:
         for f in files:
-            print(os.path.join(root, f))
+            m = re.match(r"paper-.*csv", f)
+            if m:
+                print(os.path.join(root, f))
