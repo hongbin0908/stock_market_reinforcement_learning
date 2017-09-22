@@ -115,6 +115,8 @@ class PolicyGradient:
         observation = env_test._reset(code)
         game_over = False
         reward_sum = 0
+        num_long = 0
+        num_short = 0
         while not game_over:
             aprob = model.predict(observation)[0]
             if aprob.shape[0] > 1:
@@ -124,18 +126,27 @@ class PolicyGradient:
 
             observation, reward, game_over, info = env_test.step(action)
             reward_sum += float(reward)
+            if env_test.actions[action] == 'LONG':
+                num_long += 1
+            elif env_test.actions[action] == 'SHORT':
+                num_short += 1
+            else:
+                assert  False
+
             if verbose > 0:
                 if env_test.actions[action] == "LONG" or env_test.actions[action] == "SHORT":
                     color = bcolors.FAIL if env_test.actions[action] == "LONG" else bcolors.OKBLUE
                     print("%s:\t%s\t%.2f\t%.2f\t" % (info["dt"], color + env_test.actions[action] + bcolors.ENDC, reward_sum, info["cum"]) + ("\t".join(["%s:%.2f" % (l, i) for l, i in zip(env_test.actions, aprob.tolist())])))
 
         self.test_avg_reward_sum = self.test_avg_reward_sum * 0.99 + reward_sum * 0.01
-        toPrint = "%d\t%s\t%s\t%.2f\t%.2f" % (
+        toPrint = "%d\t%s\t%s\t%.2f\t%.2f\td\td" % (
             e,                  # 周期
             info["code"],       # 股票
             (bcolors.FAIL if reward_sum >= 0 else bcolors.OKBLUE) + ("%.2f" % reward_sum) + bcolors.ENDC, # 立即收益
             info["cum"],        # buy and hold 收益
-            self.test_avg_reward_sum  ## reward_sum的折扣收益
+            self.test_avg_reward_sum,  ## reward_sum的折扣收益
+            num_long,
+            num_short
         )
         return toPrint
 
@@ -150,6 +161,8 @@ class PolicyGradient:
             observation = env._reset(code)
             game_over = False
             reward_sum = 0
+            num_long = 0
+            num_short = 0
 
             inputs = []
             outputs = []
@@ -179,13 +192,19 @@ class PolicyGradient:
 
                 rewards.append(float(reward))
 
+                if env.actions[action] == 'LONG':
+                    num_long += 1
+                elif env.actions[action] == 'SHORT':
+                    num_short += 1
+                else:
+                    assert  False
                 if verbose > 0:
                     if env.actions[action] == "LONG" or env.actions[action] == "SHORT":
                         color = bcolors.FAIL if env.actions[action] == "LONG" else bcolors.OKBLUE
                         print("%s:\t%s\t%.2f\t%.2f\t" % (info["dt"], color + env.actions[action] + bcolors.ENDC, reward_sum, info["cum"]) + ("\t".join(["%s:%.2f" % (l, i) for l, i in zip(env.actions, aprob.tolist())])))
 
             self.avg_reward_sum = self.avg_reward_sum * 0.99 + reward_sum * 0.01
-            toPrint = "%d\t%s\t%s\t%.2f\t%.2f" % (e, info["code"], (bcolors.FAIL if reward_sum >= 0 else bcolors.OKBLUE) + ("%.2f" % reward_sum) + bcolors.ENDC, info["cum"], self.avg_reward_sum)
+            toPrint = "%d\t%s\t%s\t%.2f\t%.2f\t%d\t%d" % (e, info["code"], (bcolors.FAIL if reward_sum >= 0 else bcolors.OKBLUE) + ("%.2f" % reward_sum) + bcolors.ENDC, info["cum"], self.avg_reward_sum, num_long, num_short)
             print(toPrint,'\t', self.test(e, code))
             if self.history_filename != None:
                 os.system("echo %s >> %s" % (toPrint, self.history_filename))
