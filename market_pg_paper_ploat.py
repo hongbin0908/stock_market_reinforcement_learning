@@ -26,6 +26,7 @@ if __name__ == "__main__":
                 dfs.append(df)
     df = pd.concat(dfs, axis=0)
     df = df.sort_values('date').reset_index(drop = True)
+    df['cum_sum'] = df['close_rel'].cumprod()
     print(df.head())
 
     #plt.figure(0)
