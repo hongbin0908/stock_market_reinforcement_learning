@@ -17,5 +17,6 @@ if __name__ == "__main__":
     contents = os.walk(local_path)
     print(contents)
     for root, dirs, files in contents:
+        print(root, dirs, files)
         for f in files:
             print(os.path.join(root, f))
