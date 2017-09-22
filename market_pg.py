@@ -126,17 +126,16 @@ class PolicyGradient:
         env_test = self.env_test
         model = self.model
         env_test._reset(code)
-
         observation = env_test._reset(code)
         game_over = False
         reward_sum = 0
-
         while not game_over:
             aprob = model.predict(observation)[0]
             if aprob.shape[0] > 1:
                 action = np.random.choice(env_test.action_space.n, 1, p = aprob / np.sum(aprob))[0]
             else:
                 action = 0 if np.random.uniform() < aprob else 1
+
             observation, reward, game_over, info = env_test.step(action)
             reward_sum += float(reward)
             if verbose > 0:
@@ -254,10 +253,8 @@ if __name__ == "__main__":
 
     f.close()
 
-    #env = MarketEnv(dir_path = "./data/", target_codes = list(codeMap.keys()), input_codes = [], start_date = "2010-08-25", end_date = "2015-08-25", sudden_death = -1.0)
-    #env_test = MarketEnv(dir_path = "./data/", target_codes = list(codeMap.keys()), input_codes = [], start_date = "2015-08-26", end_date = "2016-08-25", sudden_death = -1.0)
-    env = MarketEnv(dir_path = "./data/", target_codes = list(codeMap.keys()), input_codes = [], start_date = "2002-08-25", end_date = "2007-08-25", sudden_death = -1.0)
-    env_test = MarketEnv(dir_path = "./data/", target_codes = list(codeMap.keys()), input_codes = [], start_date = "2008-08-26", end_date = "2009-08-25", sudden_death = -1.0)
+    env = MarketEnv(dir_path = "./data/", target_codes = list(codeMap.keys()), input_codes = [], start_date = "2002-12-25", end_date = "2007-12-25", sudden_death = -1.0)
+    env_test = MarketEnv(dir_path = "./data/", target_codes = list(codeMap.keys()), input_codes = [], start_date = "2007-12-26", end_date = "2008-12-25", sudden_death = -1.0)
     pg = PolicyGradient(env, env_test, discount = 0.9, model_filename = modelFilename, history_filename = historyFilename)
     if mode == 'train':
         pg.train(verbose = 0)
