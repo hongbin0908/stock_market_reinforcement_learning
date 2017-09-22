@@ -139,7 +139,7 @@ class PolicyGradient:
                     print("%s:\t%s\t%.2f\t%.2f\t" % (info["dt"], color + env_test.actions[action] + bcolors.ENDC, reward_sum, info["cum"]) + ("\t".join(["%s:%.2f" % (l, i) for l, i in zip(env_test.actions, aprob.tolist())])))
 
         self.test_avg_reward_sum = self.test_avg_reward_sum * 0.99 + reward_sum * 0.01
-        toPrint = "%d\t%s\t%s\t%.2f\t%.2f\td\td" % (
+        toPrint = "%d\t%s\t%s\t%.2f\t%.2f\t%d\t%d" % (
             e,                  # 周期
             info["code"],       # 股票
             (bcolors.FAIL if reward_sum >= 0 else bcolors.OKBLUE) + ("%.2f" % reward_sum) + bcolors.ENDC, # 立即收益
