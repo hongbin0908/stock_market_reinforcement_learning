@@ -18,6 +18,6 @@ if __name__ == "__main__":
     contents = os.walk(local_path)
     for root, dirs, files in contents:
         for f in files:
-            m = re.match(r"paper-\.*csv", f)
+            m = re.match(r"paper-\\.*csv", f)
             if m:
                 print(os.path.join(root, f))
