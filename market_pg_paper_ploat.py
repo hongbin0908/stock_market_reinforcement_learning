@@ -27,6 +27,7 @@ if __name__ == "__main__":
     df = pd.concat(dfs, axis=0)
     df = df.sort_values('date').reset_index(drop = True)
 
-    plt.plot(pd.to_datetime(df.date,format='%Y-%m-%d'), df.cum_bh)
+
+    plt.plot(pd.to_datetime(df.date,format='%Y-%m-%d'), df.close_rel)
     plt.savefig("paper-%s-%s-%s" % (code, start ,end))
     plt.show()
