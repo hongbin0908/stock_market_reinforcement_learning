@@ -16,8 +16,12 @@ if __name__ == "__main__":
     end = sys.argv[argi]; argi += 1
 
     contents = os.walk(local_path)
+    dfs = []
     for root, dirs, files in contents:
         for f in files:
             m = re.match(r"paper-.*\.csv", f)
             if m:
-                print(os.path.join(root, f))
+                df = pd.read_csv(os.path.join(root, f))
+                dfs.append(df)
+    df = pd.concat(dfs, axis=1)
+    print(df.head)
