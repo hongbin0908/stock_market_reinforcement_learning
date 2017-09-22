@@ -28,6 +28,6 @@ if __name__ == "__main__":
     df = df.sort_values('date').reset_index(drop = True)
 
 
-    plt.plot(pd.to_datetime(df.date,format='%Y-%m-%d'), df.close_rel)
+    plt.plot(pd.to_datetime(df.date,format='%Y-%m-%d'), df.close)
     plt.savefig("paper-%s-%s-%s" % (code, start ,end))
     plt.show()
