@@ -32,7 +32,7 @@ class PolicyGradient:
         self.history_filename = history_filename
 
         from keras.optimizers import SGD
-        self.model = MarketPolicyGradientModelBuilder(modelFilename).getModel()
+        self.model = MarketPolicyGradientModelBuilder(model_filename).getModel()
         sgd = SGD(lr = 0.1, decay = 1e-6, momentum = 0.9, nesterov = True)
         self.model.compile(loss='mse', optimizer='rmsprop')
 
@@ -61,10 +61,10 @@ class PolicyGradient:
             while not game_over:
                 aprob = self.model.predict(observation)[0]
                 if aprob.shape[0] > 1:
-                    action = np.random.choice(env_test.action_space.n, 1, p=aprob / np.sum(aprob))[0]
+                    action = np.random.choice(self.env_test.action_space.n, 1, p=aprob / np.sum(aprob))[0]
                 else:
                     action = 0 if np.random.uniform() < aprob else 1
-                observation, reward, game_over, info = env_test.step(action)
+                observation, reward, game_over, info = self.env_test.step(action)
                 date2position[info['dt']] = action
             return date2position
         def cum_return(sym, row):
