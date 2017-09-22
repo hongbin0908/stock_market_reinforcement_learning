@@ -12,8 +12,8 @@ cd "$SCRIPT_PATH"
 pids=""
 
 python3 market_pg_train.py sp500.csv 1990-01-01 1999-12-31 2000-01-01 2000-12-31 100 &
-python3 market_pg_train.py sp500.csv 1991-01-01 2000-12-31 2001-01-01 2001-12-31 100
 wait
+python3 market_pg_train.py sp500.csv 1991-01-01 2000-12-31 2001-01-01 2001-12-31 100
 python3 market_pg_train.py sp500.csv 1992-01-01 2001-12-31 2002-01-01 2002-12-31 100
 python3 market_pg_train.py sp500.csv 1993-01-01 2002-12-31 2003-01-01 2003-12-31 100
 python3 market_pg_train.py sp500.csv 1994-01-01 2003-12-31 2004-01-01 2004-12-31 100
