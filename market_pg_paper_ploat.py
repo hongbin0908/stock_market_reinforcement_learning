@@ -27,7 +27,10 @@ if __name__ == "__main__":
     df = pd.concat(dfs, axis=0)
     df = df.sort_values('date').reset_index(drop = True)
 
-
+    plt.figure(0)
+    plt.subplot(121)
     plt.plot(pd.to_datetime(df.date,format='%Y-%m-%d'), df.cum_bh)
+    plt.subplot(122)
+    plt.plot(pd.to_datetime(df.date,format='%Y-%m-%d'), df.close)
     plt.savefig("paper-%s-%s-%s" % (code, start ,end))
     plt.show()
