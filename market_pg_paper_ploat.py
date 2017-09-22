@@ -15,10 +15,7 @@ if __name__ == "__main__":
     end = sys.argv[argi]; argi += 1
 
     contents = os.walk(local_path)
-    print(local_path)
-    print(__file__)
     print(contents)
     for root, dirs, files in contents:
-        print(root, dirs, files)
         for f in files:
             print(os.path.join(root, f))
