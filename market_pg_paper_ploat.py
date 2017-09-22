@@ -3,7 +3,7 @@ import sys
 import numpy as np
 import pandas as pd
 
-local_path = os.path.dirname(__file__)
+local_path = os.path.realpath(os.path.dirname(__file__))
 root = os.path.join(local_path, '..')
 sys.path.append(root)
 
