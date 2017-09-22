@@ -15,7 +15,8 @@ def cum_sum(row, signal_name):
     if sig == 1:
         cum['cum'] *= close_rel
     elif sig == -1:
-        cum['cum'] *= 2-close_rel
+        pass
+        #cum['cum'] *= 2-close_rel
     elif sig == 0:
         pass
     else:
