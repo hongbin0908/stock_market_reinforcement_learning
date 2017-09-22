@@ -106,7 +106,6 @@ class PolicyGradient:
         start = self.env_test.startDate
         end = self.env_test.endDate
         df = df[(df.date >= start) & (df.date < end)]
-        dates = pd.to_datetime(df.date, format='%Y-%m-%d')
         df['close_rel']  = (df.close / df.close.shift(1)).fillna(1.0)
 
         date2position = take_position()
