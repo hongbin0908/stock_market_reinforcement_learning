@@ -23,7 +23,7 @@ for year in range(2000, 2018):
     test_start = '%s-01-01' % year
     test_start_obj = datetime.strptime(test_start, '%Y-%m-%d')
     test_end   = '%s-12-31' % year
-    train_end_obj  = test_start_obj - timedelta(day=1)
+    train_end_obj  = test_start_obj - timedelta(days=1)
     train_end = train_end_obj.strftime('%Y-%m-%d')
     train_start_obj = train_end_obj - timedelta(year = 10)
     train_start = train_start_obj.strftime('%Y-%m-%d')
