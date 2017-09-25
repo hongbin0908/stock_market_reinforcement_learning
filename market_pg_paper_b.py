@@ -32,9 +32,9 @@ for year in range(2000, 2018):
     print(cmd_str)
     e = pool.apply_async(run_cmd, cmd_str)
     res.append(e)
-pool.close(); pool.join()
+pool.join()
 for e in res:
-    print(e)
+    print(e.get())
 
 #python3 market_pg_paper.py sp500.csv 1990-01-01 1999-12-31 ^GSPC 2000-01-01 2000-12-31
 #python3 market_pg_paper.py sp500.csv 1991-01-01 2000-12-31 ^GSPC 2001-01-01 2001-12-31
