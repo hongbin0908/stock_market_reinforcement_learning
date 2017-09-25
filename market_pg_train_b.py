@@ -10,8 +10,7 @@ import util
 
 argi = 1
 codeListFilename = sys.argv[argi]; argi +=1
-code = sys.argv[argi]; argi += 1
-pool = ThreadPool(4)
+pool = ThreadPool(8)
 res = []
 for year in range(2000, 2018):
     from datetime import datetime
@@ -23,7 +22,7 @@ for year in range(2000, 2018):
     train_end = train_end_obj.strftime('%Y-%m-%d')
     train_start_obj = train_end_obj - timedelta(days = 365)
     train_start = train_start_obj.strftime('%Y-%m-%d')
-    cmd_str = 'python3 market_pg_paper.py %s %s %s %s %s %s' % (codeListFilename, train_start, train_end, code, test_start, test_end)
+    cmd_str = 'python3 market_pg_train.py %s %s %s %s %s 1' % (codeListFilename, train_start, train_end, test_start, test_end)
     e = pool.apply_async(util.run_cmd, (cmd_str,))
     res.append(e)
 for e in res:
