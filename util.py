@@ -15,11 +15,5 @@ def run_cmd(cmd_str):
         if out == '' and p.poll() != None:
             break
         if out != '':
-            sys.stdout.write(out)
+            sys.stdout.write(out.decode('utf-8'))
             sys.stdout.flush()
-        err = p.stderr.read(1)
-        if err == '' and p.poll() != None:
-            break
-        if err != '':
-            sys.stderr.write(out)
-            sys.stderr.flush()
