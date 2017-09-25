@@ -12,6 +12,7 @@ sys.path.append(root)
 
 
 def run_cmd(cmd_str):
+    print(cmd_str)
     p = subprocess.Popen(cmd_str, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
     out, err = p.communicate()
     return (out, err)
@@ -29,7 +30,6 @@ for year in range(2000, 2018):
     train_start_obj = train_end_obj - timedelta(days = 365)
     train_start = train_start_obj.strftime('%Y-%m-%d')
     cmd_str = 'python3 market_pg_paper.py sp500.csv %s %s ^GSPC %s %s' % (train_start, train_end, test_start, test_end)
-    print(cmd_str)
     e = pool.apply_async(run_cmd, cmd_str)
     res.append(e)
 for e in res:
