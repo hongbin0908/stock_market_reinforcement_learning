@@ -32,7 +32,6 @@ for year in range(2000, 2018):
     print(cmd_str)
     e = pool.apply_async(run_cmd, cmd_str)
     res.append(e)
-pool.join()
 for e in res:
     print(e.get())
 
