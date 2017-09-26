@@ -28,17 +28,20 @@ if __name__ == "__main__":
     code = sys.argv[argi]; argi += 1
     start = sys.argv[argi]; argi += 1
     end = sys.argv[argi]; argi += 1
+    prefix = sys.argv[argi]; argi += 1
 
     contents = os.walk(local_path)
     dfs = []
     for root, dirs, files in contents:
         for f in files:
-            m = re.match(r"paper-.*\.csv", f)
+            mstr ="paper-%s-%s.*csv"%(prefix, code.replace('^', '\^'))
+            m = re.match(mstr, f)
             if m:
                 df = pd.read_csv(os.path.join(root, f))
                 dfs.append(df)
     df = pd.concat(dfs, axis=0)
     df = df.sort_values('date').reset_index(drop = True)
+    df = df[(df.date >= start) & (df.date <= end)]
     cum = {'cum':1}; df['model_cum'] = df.apply(lambda x: cum_sum(x, 'model_signal'), axis=1)
     cum = {'cum':1}; df['bh_cum'] = df.apply(lambda x: cum_sum(x, 'bh_signal'), axis=1)
     cum = {'cum':1}; df['sh_cum'] = df.apply(lambda x: cum_sum(x, 'sh_signal'), axis=1)
