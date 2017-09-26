@@ -8,7 +8,7 @@ sys.path.append(root)
 
 
 def run_cmd(cmd_str):
-    print(cmd_str)
+    #print(cmd_str)
     p = subprocess.Popen(cmd_str, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
     out, err = p.communicate()
     return (p.returncode, out, err)
