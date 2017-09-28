@@ -10,11 +10,7 @@ import util
 
 
 def train_and_paper(code_list, code):
-<<<<<<< HEAD
     pool = ThreadPool(1)
-=======
-    pool = ThreadPool(4)
->>>>>>> 6bd9016a16e79387a9d921b39b2e39e087e5db24
     res = []
     for year in range(2000, 2018):
         train_start, train_end, test_start, test_end = util.train_test_range(year)
