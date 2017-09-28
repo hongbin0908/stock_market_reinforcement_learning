@@ -10,11 +10,15 @@ import util
 
 
 def train_and_paper(code_list, code):
+<<<<<<< HEAD
     pool = ThreadPool(1)
+=======
+    pool = ThreadPool(4)
+>>>>>>> 6bd9016a16e79387a9d921b39b2e39e087e5db24
     res = []
     for year in range(2000, 2018):
         train_start, train_end, test_start, test_end = util.train_test_range(year)
-        cmd_str = 'python3 market_pg_train.py %s %s %s %s %s 1; ' % (code_list, train_start, train_end, test_start, test_end)
+        cmd_str = 'python3 market_pg_train.py %s %s %s %s %s 10; ' % (code_list, train_start, train_end, test_start, test_end)
         cmd_str += 'python3 market_pg_paper.py %s %s %s %s %s %s %s' % (code_list, train_start, train_end, code, test_start, test_end, "year")
         e = pool.apply_async(util.run_cmd, (cmd_str,))
         res.append(e)
