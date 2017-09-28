@@ -12,6 +12,15 @@ from market_model_builder import MarketPolicyGradientModelBuilder
 from keras import backend as K
 K.set_image_dim_ordering('th')
 
+
+import tensorflow as tf
+config = tf.ConfigProto(intra_op_parallelism_threads=1, \
+                        inter_op_parallelism_threads=1, \
+                        allow_soft_placement=True, \
+                        device_count = {'CPU': 1})
+session = tf.Session(config=config)
+K.set_session(session)
+
 class bcolors:
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'
