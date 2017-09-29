@@ -1,4 +1,3 @@
-import os, sys
 from random import random
 import numpy as np
 import math
@@ -10,18 +9,20 @@ class MarketEnv(gym.Env):
 
     PENALTY = 1 #0.999756079
 
-    def __init__(self, dir_path, codes, target_date_start, target_date_end, scope = 60, sudden_death = -1., cumulative_reward = False):
-        self.target_date_start = target_date_start
-        self.target_date_end = target_date_end
+    def __init__(self, dir_path, target_codes, input_codes, start_date, end_date, scope = 60, sudden_death = -1., cumulative_reward = False):
+        self.startDate = start_date
+        self.endDate = end_date
         self.scope = scope # 考虑历史数据的长度 60天
         self.sudden_death = sudden_death # 控制game over的变量, -1表示不会结束.
         self.cumulative_reward = cumulative_reward
 
-        self.codes = []
-        self.data_map = {} # symbol: [{'date':(high, low ,close, volumn)}..]
+        self.inputCodes = [] #有啥用???
+        self.targetCodes = []
+        self.dataMap = {} # symbol: [{'date':(high, low ,close, volumn)}..]
 
-        for code in (codes):
-            fn = os.path.join(dir_path,  code + ".csv")
+        for code in (target_codes + input_codes):
+            fn = dir_path + "./" + code + ".csv"
+
             data = {}
             lastClose = 0
             lastVolume = 0
@@ -31,21 +32,25 @@ class MarketEnv(gym.Env):
                     if line.strip() != "":
                         dt, openPrice, high, low, close, volume = line.strip().split(",")
                         try:
-                            high = float(high) if high != "" else float(close)
-                            low = float(low) if low != "" else float(close)
-                            close = float(close)
-                            volume = int(float(volume))
-                            # 正则化 这个正则化的过程不是很懂? 能保证 high > close > low??
-                            if lastClose > 0 and close > 0 and lastVolume > 0:
-                                close_ = (close - lastClose) / lastClose
-                                high_ = (high - close) / close
-                                low_ = (low - close) / close
-                                volume_ = (volume - lastVolume) / lastVolume
+                            if dt >= start_date and dt <= end_date:
+                                high = float(high) if high != "" else float(close)
+                                low = float(low) if low != "" else float(close)
+                                close = float(close)
+                                volume = int(float(volume))
 
-                                data[dt] = (high_, low_, close_, volume_)
+                                # 正则化 这个正则化的过程不是很懂? 能保证 high > close > low??
+                                if lastClose > 0 and close > 0 and lastVolume > 0:
+                                    close_ = (close - lastClose) / lastClose
+                                    high_ = (high - close) / close
+                                    low_ = (low - close) / close
+                                    volume_ = (volume - lastVolume) / lastVolume
 
-                            lastClose = close
-                            lastVolume = volume
+                                    data[dt] = (high_, low_, close_, volume_)
+
+                                lastClose = close
+                                lastVolume = volume
+                            else:
+                                pass
                         except Exception as e:
                             print(e, line.strip().split(","))
                 f.close()
@@ -53,9 +58,11 @@ class MarketEnv(gym.Env):
                 print(e)
 
             if len(list(data.keys())) > scope:
-                self.data_map[code] = data
-                if code in codes:
-                    self.codes.append(code)
+                self.dataMap[code] = data
+                if code in target_codes:
+                    self.targetCodes.append(code)
+                if code in input_codes:
+                    self.inputCodes.append(code)
 
         self.actions = [
             "LONG",
@@ -63,7 +70,7 @@ class MarketEnv(gym.Env):
         ]
 
         self.action_space = spaces.Discrete(len(self.actions))
-        #self.observation_space = spaces.Box(np.ones(scope * (len(input_codes) + 1)) * -1, np.ones(scope * (len(input_codes) + 1)))
+        self.observation_space = spaces.Box(np.ones(scope * (len(input_codes) + 1)) * -1, np.ones(scope * (len(input_codes) + 1)))
 
         #self._reset()
         self._seed()
@@ -102,14 +109,15 @@ class MarketEnv(gym.Env):
         else:
             pass
 
-        vari = self.target[self.dates[self.current_target_index]][2]
+        vari = self.target[self.targetDates[self.currentTargetIndex]][2]
         self.cum = self.cum * (1 + vari)
 
         for i in range(len(self.boughts)):
             self.boughts[i] = self.boughts[i] * MarketEnv.PENALTY * (1 + vari * (-1 if sum(self.boughts) < 0 else 1))
 
         self.defineState()
-        if self.current_target_index >= len(self.dates)-1 or self.target_date_end <= self.dates[self.current_target_index]:
+        self.currentTargetIndex += 1
+        if self.currentTargetIndex >= len(self.targetDates)-1 or self.endDate <= self.targetDates[self.currentTargetIndex]:
             self.done = True
 
         if self.done:
@@ -120,25 +128,16 @@ class MarketEnv(gym.Env):
 
             self.boughts = []
 
-        e = self.state, self.reward, self.done, {"dt": self.dates[self.current_target_index], "cum": self.cum, "code": self.current_code}
-        self.current_target_index += 1
-        return e
+        return self.state, self.reward, self.done, {"dt": self.targetDates[self.currentTargetIndex], "cum": self.cum, "code": self.targetCode}
 
     def _reset(self, code=None):
         if not code is None:
-            self.current_code = code
+            self.targetCode = code
         else:
-            self.current_code = self.codes[int(random() * len(self.codes))]
-        self.target = self.data_map[self.current_code] # 随意选择一个股票
-        self.dates = sorted(self.target.keys())
-        for i in range(len(self.dates)):
-            if self.dates[i] >= self.target_date_start:
-                self.current_target_index = i
-                break
-        if self.current_target_index < self.scope:
-            self.current_target_index = self.scope
-
-        print(self.dates[self.current_target_index])
+            self.targetCode = self.targetCodes[int(random() * len(self.targetCodes))]
+        self.target = self.dataMap[self.targetCode] # 随意选择一个股票
+        self.targetDates = sorted(self.target.keys())
+        self.currentTargetIndex = self.scope
         self.boughts = []
         self.cum = 1.
 
@@ -170,22 +169,19 @@ class MarketEnv(gym.Env):
 
         budget = (sum(self.boughts) / len(self.boughts)) if len(self.boughts) > 0 else 1.
         size = math.log(max(1., len(self.boughts)), 100)
-        position = 1. if sum(self.boughts) > 0 else 0. # postion =1 做多, =0 做空 或者不做
+        position = 1. if sum(self.boughts) > 0 else 0. # postion =1 做多, =0 做空
         tmpState.append([[budget, size, position]])
 
         subject = []
         subjectVolume = []
         for i in range(self.scope):
             try:
-                subject.append([self.target[self.dates[self.current_target_index - 1 - i]][2]]) # close
-                subjectVolume.append([self.target[self.dates[self.current_target_index - 1 - i]][3]]) # volume
+                subject.append([self.target[self.targetDates[self.currentTargetIndex - 1 - i]][2]])
+                subjectVolume.append([self.target[self.targetDates[self.currentTargetIndex - 1 - i]][3]])
             except Exception as e:
-                assert False
-                print(self.current_code, self.current_target_index, i, len(self.dates))
+                print(self.targetCode, self.currentTargetIndex, i, len(self.targetDates))
                 self.done = True
         tmpState.append([[subject, subjectVolume]])
 
         tmpState = [np.array(i) for i in tmpState]
         self.state = tmpState
-        assert (1,3) == self.state[0].shape
-        assert (1,2,self.scope, 1) == self.state[1].shape
