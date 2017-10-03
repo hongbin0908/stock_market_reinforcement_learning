@@ -14,10 +14,10 @@ K.set_image_dim_ordering('th')
 
 
 import tensorflow as tf
-config = tf.ConfigProto(intra_op_parallelism_threads=1, \
-                        inter_op_parallelism_threads=1, \
+config = tf.ConfigProto(intra_op_parallelism_threads=2, \
+                        inter_op_parallelism_threads=2, \
                         allow_soft_placement=True, \
-                        device_count = {'CPU': 1})
+                        device_count = {'CPU': 2})
 session = tf.Session(config=config)
 K.set_session(session)
 

@@ -13,10 +13,10 @@ from keras import backend as K
 K.set_image_dim_ordering('th')
 import tensorflow as tf
 
-config = tf.ConfigProto(intra_op_parallelism_threads=1, \
-                        inter_op_parallelism_threads=1, \
+config = tf.ConfigProto(intra_op_parallelism_threads=2, \
+                        inter_op_parallelism_threads=2, \
                         allow_soft_placement=True, \
-                        device_count = {'CPU': 1})
+                        device_count = {'CPU': 2})
 session = tf.Session(config=config)
 K.set_session(session)
 
@@ -177,7 +177,7 @@ class PolicyGradient:
                 aprob = model.predict(observation)[0]
                 inputs.append(observation)
                 predicteds.append(aprob)
-                
+
                 if aprob.shape[0] > 1:
                     action = np.random.choice(self.env.action_space.n, 1, p = aprob / np.sum(aprob))[0]
 
