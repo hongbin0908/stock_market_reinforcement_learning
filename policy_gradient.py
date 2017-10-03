@@ -165,7 +165,7 @@ class PolicyGradient:
 
         for e in range(max_episode):
             from random import random
-            code = self.env.targetCodes[int(random() * len(self.env.targetCodes))]
+            code = self.env.codes[int(random() * len(self.env.codes))]
             env._reset(code)
             observation = env._reset(code)
             game_over = False
